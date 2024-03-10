@@ -11,6 +11,8 @@ import {
 } from 'rxjs'
 import { environment } from '../../../environments/environment.development'
 import { LoginToken } from './LoginToken'
+import { User } from '../user/User'
+import { jwtDecode } from 'jwt-decode'
 
 @Injectable({
   providedIn: 'root',
@@ -19,13 +21,13 @@ export class LoginService {
   currentUserLoginOn: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
     false
   )
-  currentUserData: BehaviorSubject<String> = new BehaviorSubject<String>('')
+  currentUserData: BehaviorSubject<string> = new BehaviorSubject<string>('')
 
   constructor(private http: HttpClient) {
     this.currentUserLoginOn = new BehaviorSubject<boolean>(
       sessionStorage.getItem('token') != null
     )
-    this.currentUserData = new BehaviorSubject<String>(
+    this.currentUserData = new BehaviorSubject<string>(
       sessionStorage.getItem('token') || ''
     )
   }
@@ -45,6 +47,12 @@ export class LoginService {
       )
   }
 
+  logout(): void {
+    sessionStorage.removeItem('token')
+    this.currentUserData.next('')
+    this.currentUserLoginOn.next(false)
+  }
+
   private handleError(error: HttpErrorResponse) {
     if (error.status === 0) {
       console.error('Se ha producido un error ', error.error)
@@ -58,11 +66,15 @@ export class LoginService {
     return this.currentUserData.asObservable()
   }
 
-  get userLoginOn(): Observable<boolean> {
-    return this.currentUserLoginOn.asObservable()
+  get userLoginOn(): boolean {
+    return this.currentUserLoginOn.value
   }
 
   get userToken(): String {
     return this.currentUserData.value
+  }
+
+  get loggedUser(): User {
+    return jwtDecode<User>(this.currentUserData.value)
   }
 }
