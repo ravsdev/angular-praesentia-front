@@ -5,6 +5,7 @@ import { NavComponent } from './shared/nav/nav.component'
 import { HeaderComponent } from './shared/header/header.component'
 import { FooterComponent } from './shared/footer/footer.component'
 import { HttpClientModule } from '@angular/common/http'
+import { AlertComponent } from './shared/alert/alert.component'
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,7 @@ import { HttpClientModule } from '@angular/common/http'
     HeaderComponent,
     FooterComponent,
     HttpClientModule,
+    AlertComponent,
   ],
 
   templateUrl: './app.component.html',

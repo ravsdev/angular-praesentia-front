@@ -4,7 +4,6 @@ import { HeaderComponent } from '../../shared/header/header.component'
 import { NavComponent } from '../../shared/nav/nav.component'
 import { Router, RouterLink, RouterOutlet } from '@angular/router'
 import { LoginService } from '../../services/auth/login.service'
-import { UsersService } from '../../services/user/user.service'
 import { User } from '../../services/user/User'
 import { jwtDecode } from 'jwt-decode'
 
@@ -26,11 +25,7 @@ export class DashboardComponent implements OnInit {
   user?: User
   userList?: User[]
 
-  constructor(
-    private router: Router,
-    private loginService: LoginService,
-    private userService: UsersService
-  ) {}
+  constructor(private router: Router, private loginService: LoginService) {}
   ngOnInit(): void {
     this.loginService.currentUserLoginOn.subscribe({
       next: (userLoginOn) => {

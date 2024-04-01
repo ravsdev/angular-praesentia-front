@@ -7,6 +7,8 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'
 import { LoginService } from '../../services/auth/login.service'
 import { jwtDecode } from 'jwt-decode'
 import { AlertComponent } from '../../shared/alert/alert.component'
+import { AlertService } from '../../services/alert/alert.service'
+import { catchError } from 'rxjs'
 
 @Component({
   selector: 'app-user',
@@ -27,7 +29,8 @@ export class UserComponent implements OnInit {
   constructor(
     private router: Router,
     private userService: UsersService,
-    private loginService: LoginService
+    private loginService: LoginService,
+    private alertService: AlertService
   ) {}
 
   ngOnInit(): void {
@@ -43,21 +46,21 @@ export class UserComponent implements OnInit {
       enabled: new FormControl(false),
     })
 
-    //if (this.route.snapshot.paramMap.get('id') !== null) {
-    const id = parseInt(this.route.snapshot.paramMap.get('id')!, 10)
-    this.userService.get(id).subscribe((data) => {
-      if (data) {
-        this.user = data
-        this.user.id = id
-        this.userForm.get('firstname')?.setValue(this.user.firstname)
-        this.userForm.get('lastname')?.setValue(this.user.lastname)
-        this.userForm.get('dni')?.setValue(this.user.dni)
-        this.userForm.get('email')?.setValue(this.user.email)
-        this.userForm.get('role')?.setValue(this.user.role)
-        this.userForm.get('enabled')?.setValue(this.user.enabled)
-      }
-    })
-    //}
+    if (this.route.snapshot.paramMap.get('id') !== null) {
+      const id = parseInt(this.route.snapshot.paramMap.get('id')!, 10)
+      this.userService.get(id).subscribe((data) => {
+        if (data) {
+          this.user = data
+          this.user.id = id
+          this.userForm.get('firstname')?.setValue(this.user.firstname)
+          this.userForm.get('lastname')?.setValue(this.user.lastname)
+          this.userForm.get('dni')?.setValue(this.user.dni)
+          this.userForm.get('email')?.setValue(this.user.email)
+          this.userForm.get('role')?.setValue(this.user.role)
+          this.userForm.get('enabled')?.setValue(this.user.enabled)
+        }
+      })
+    }
   }
 
   public getRoles(): typeof Roles {
@@ -66,24 +69,40 @@ export class UserComponent implements OnInit {
 
   public onRemove(): void {
     this.userService.remove(this.user?.id).subscribe({
+      error: (err) => {
+        //console.log(err)
+        this.alertService.error(err)
+      },
       complete: () => {
-        this.router.navigateByUrl('/users')
+        this.alertService.success('Borrado con éxito')
+        this.router.navigate(['../'], { relativeTo: this.route })
       },
     })
   }
 
   public onSave(): void {
     if (this.user?.id !== undefined)
-      this.userService
-        .update(this.user.id, this.userForm.value)
-        .subscribe((data) => {
-          if (data) {
-            console.log('updated')
-          }
-        })
+      this.userService.update(this.user.id, this.userForm.value).subscribe({
+        error: (err) => {
+          //console.log(err)
+          this.alertService.error(err)
+        },
+        complete: () => {
+          //console.log('updated')
+          this.alertService.success('Guardado con éxito')
+        },
+      })
     else
-      this.userService
-        .save(this.userForm.value)
-        .subscribe((data) => console.log(data))
+      this.userService.save(this.userForm.value).subscribe({
+        error: (err) => {
+          //console.log(err)
+          this.alertService.error(err)
+        },
+        complete: () => {
+          //console.log('updated')
+          this.alertService.success('Usuario creado con éxito')
+          this.router.navigate(['../'], { relativeTo: this.route })
+        },
+      })
   }
 }

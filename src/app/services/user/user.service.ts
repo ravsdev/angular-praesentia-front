@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core'
 import { environment } from '../../../environments/environment.development'
 import { catchError, throwError } from 'rxjs'
 import { User } from './User'
+import { ApiResponse } from '../../models/alert/apiresponse.model'
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,7 @@ export class UsersService {
 
   public remove(id: number | undefined) {
     return this.http
-      .delete(`${environment.apiUrl}/v1/users/${id}`)
+      .delete<ApiResponse>(`${environment.apiUrl}/v1/users/${id}`)
       .pipe(catchError(this.handleError))
   }
 
@@ -46,6 +47,6 @@ export class UsersService {
     } else {
       console.error('Status error: %d', error.status, error.error)
     }
-    return throwError(() => new Error(error.error))
+    return throwError(() => new Error(error.error['message']))
   }
 }

@@ -9,6 +9,7 @@ import {
 import { LoginService } from '../../services/auth/login.service'
 import { LoginRequest } from '../../services/auth/LoginRequest'
 import { Router } from '@angular/router'
+import { AlertService } from '../../services/alert/alert.service'
 
 @Component({
   selector: 'app-login',
@@ -21,7 +22,11 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup
   loginError: string = ''
 
-  constructor(private router: Router, private loginService: LoginService) {}
+  constructor(
+    private router: Router,
+    private loginService: LoginService,
+    private alertService: AlertService
+  ) {}
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
@@ -41,7 +46,8 @@ export class LoginComponent implements OnInit {
         },
         error: (err) => {
           console.log(err)
-          this.loginError = err
+          //this.loginError = err
+          this.alertService.error(err)
         },
         complete: () => {
           this.router.navigateByUrl('/home')
